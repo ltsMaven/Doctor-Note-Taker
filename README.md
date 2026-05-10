@@ -103,6 +103,48 @@ npm run web
 10. Use the session switcher to sign in as the patient with PIN `5678`.
 11. Open `/patient` to see the approved instructions and reminders.
 
+## AI Pipeline Structure
+
+The doctor flow is structured as:
+
+```text
+Doctor records audio
+        |
+Browser MediaRecorder API
+        |
+Send audio file to backend
+        |
+/api/transcribe
+        |
+OpenAI gpt-4o-mini-transcribe when OPENAI_API_KEY is configured
+        |
+Transcript text
+        |
+/api/generate-summary
+        |
+Cheap LLM generates structured JSON
+        |
+Doctor reviews and edits
+        |
+Patient sees summary, medication table, and reminders
+```
+
+The UI does not call transcription or summary mocks directly. The doctor page sends the recorded `Blob` to `/api/transcribe` as multipart `FormData`, then sends the transcript to `/api/generate-summary`.
+
+Without `OPENAI_API_KEY`, both backend routes return mock data so the prototype still runs locally.
+
+## OpenAI Setup
+
+Create `.env` from `.env.example`:
+
+```bash
+OPENAI_API_KEY=your_server_side_key
+OPENAI_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
+OPENAI_SUMMARY_MODEL=gpt-4o-mini
+```
+
+The key is read only by backend API routes. Do not rename it to `EXPO_PUBLIC_OPENAI_API_KEY`.
+
 ## Demo Accounts
 
 - Doctor: `doctor@example.com`, PIN `1234`

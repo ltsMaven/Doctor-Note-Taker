@@ -16,9 +16,8 @@ import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useAuth } from "@/providers/AuthProvider";
+import { requestStructuredSummary, sendAudioForTranscription } from "@/services/doctorAiClient";
 import { generateMedicationReminders } from "@/services/reminderService";
-import { generateSummaryFromTranscript } from "@/services/summaryService";
-import { transcribeAudio } from "@/services/transcriptionService";
 import { MedicalSummary, TranscriptionResult } from "@/types/medical";
 import { saveApprovedSummary, saveReminders } from "@/utils/storage";
 import { canShareWithPatient, summaryReviewWarnings } from "@/utils/summaryValidation";
@@ -76,12 +75,12 @@ function DoctorContent() {
 
     try {
       const audio = await recorder.stopRecording();
-      const transcriptResult = await transcribeAudio(audio);
+      const transcriptResult = await sendAudioForTranscription(audio);
       setTranscription(transcriptResult);
-      const generatedSummary = await generateSummaryFromTranscript(transcriptResult.transcript);
+      const generatedSummary = await requestStructuredSummary(transcriptResult.transcript);
       setSummary(generatedSummary);
     } catch {
-      setProcessError("The mock transcription flow failed. Please try recording again.");
+      setProcessError("The backend AI pipeline failed. Please try recording again.");
     } finally {
       setIsProcessing(false);
     }
@@ -145,7 +144,7 @@ function DoctorContent() {
             <SectionHeader
               eyebrow="Recording"
               title="Consultation audio"
-              description="On web, the app uses the browser MediaRecorder API. On iOS and Android, this prototype uses a mock recorder."
+              description="Audio is captured by Browser MediaRecorder, posted to /api/transcribe, then converted into structured JSON by /api/generate-summary."
             />
             <RecordingStatus status={recorder.status} mode={recorder.mode} errorMessage={recorder.errorMessage} />
             <RecordButton
@@ -159,7 +158,7 @@ function DoctorContent() {
               <View style={styles.processingBox}>
                 <Text style={styles.processingTitle}>Processing transcript and summary</Text>
                 <Text style={styles.processingText}>
-                  Mock transcription and AI summarisation are running. Replace these services later with real APIs.
+                  Audio is being sent to the backend. The backend uses OpenAI when configured and falls back to mock data without API keys.
                 </Text>
               </View>
             ) : null}

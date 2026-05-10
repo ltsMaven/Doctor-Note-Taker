@@ -38,6 +38,9 @@ export type TranscriptionResult = {
   transcript: string;
   confidence: "high" | "medium" | "low";
   warnings: string[];
+  source?: "mock" | "openai";
+  model?: string;
+  audioReceived?: boolean;
 };
 
 export type ReminderStatus = "Pending" | "Taken" | "Skipped";
