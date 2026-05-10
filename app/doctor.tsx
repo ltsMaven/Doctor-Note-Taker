@@ -1,0 +1,310 @@
+import { useRouter } from "expo-router";
+import { ClipboardCheck, RefreshCw, Send, ShieldCheck } from "lucide-react-native";
+import { useMemo, useState } from "react";
+import { ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AccessDenied, LoadingGate } from "@/components/AccessDenied";
+import { DoctorNoteEditor } from "@/components/DoctorNoteEditor";
+import { RecordButton } from "@/components/RecordButton";
+import { RecordingStatus } from "@/components/RecordingStatus";
+import { SessionBar } from "@/components/SessionBar";
+import { TranscriptPreview } from "@/components/TranscriptPreview";
+import { ActionButton, Badge, Card, SectionHeader } from "@/components/ui";
+import { SafetyDisclaimer, WarningBox } from "@/components/WarningBox";
+import { colors, spacing } from "@/constants/theme";
+import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import { useAuth } from "@/providers/AuthProvider";
+import { generateMedicationReminders } from "@/services/reminderService";
+import { generateSummaryFromTranscript } from "@/services/summaryService";
+import { transcribeAudio } from "@/services/transcriptionService";
+import { MedicalSummary, TranscriptionResult } from "@/types/medical";
+import { saveApprovedSummary, saveReminders } from "@/utils/storage";
+import { canShareWithPatient, summaryReviewWarnings } from "@/utils/summaryValidation";
+
+export default function DoctorScreen() {
+  const gate = useProtectedRoute(["doctor"]);
+
+  if (gate.isLoading || !gate.user) {
+    return <LoadingGate />;
+  }
+
+  if (!gate.hasAccess) {
+    return <AccessDenied allowedRoles={gate.allowedRoles} />;
+  }
+
+  return <DoctorContent />;
+}
+
+function DoctorContent() {
+  const router = useRouter();
+  const { users } = useAuth();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 960;
+  const recorder = useAudioRecorder();
+  const [transcription, setTranscription] = useState<TranscriptionResult | null>(null);
+  const [summary, setSummary] = useState<MedicalSummary | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [approved, setApproved] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [processError, setProcessError] = useState("");
+
+  const reviewWarnings = useMemo(() => summaryReviewWarnings(summary, transcription), [summary, transcription]);
+  const shareCheck = useMemo(() => canShareWithPatient(summary), [summary]);
+  const patientUser = useMemo(
+    () => users.find((candidate) => candidate.role === "patient") ?? null,
+    [users]
+  );
+  const targetPatientId = patientUser?.patientId ?? patientUser?.id ?? DEFAULT_PATIENT_ID;
+  const targetPatientName = patientUser?.name ?? "Ava Thompson";
+
+  const startRecording = async () => {
+    setProcessError("");
+    setSent(false);
+    setApproved(false);
+    setTranscription(null);
+    setSummary(null);
+    await recorder.startRecording();
+  };
+
+  const stopAndProcess = async () => {
+    setProcessError("");
+    setSent(false);
+    setApproved(false);
+    setIsProcessing(true);
+
+    try {
+      const audio = await recorder.stopRecording();
+      const transcriptResult = await transcribeAudio(audio);
+      setTranscription(transcriptResult);
+      const generatedSummary = await generateSummaryFromTranscript(transcriptResult.transcript);
+      setSummary(generatedSummary);
+    } catch {
+      setProcessError("The mock transcription flow failed. Please try recording again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const reset = () => {
+    recorder.resetRecording();
+    setTranscription(null);
+    setSummary(null);
+    setApproved(false);
+    setSent(false);
+    setProcessError("");
+  };
+
+  const updateSummary = (next: MedicalSummary) => {
+    setSummary(next);
+    setApproved(false);
+    setSent(false);
+  };
+
+  const sendToPatient = async () => {
+    if (!summary || !approved || !shareCheck.ok) {
+      return;
+    }
+
+    const approvedSummary: MedicalSummary = {
+      ...summary,
+      patientId: targetPatientId,
+      patientName: targetPatientName,
+      doctorApproved: true,
+      approvedAt: new Date().toISOString(),
+      reviewNotes: reviewWarnings
+    };
+    const reminders = generateMedicationReminders(approvedSummary.medications);
+
+    await saveApprovedSummary(approvedSummary);
+    await saveReminders(reminders, targetPatientId);
+    setSummary(approvedSummary);
+    setSent(true);
+    router.push("/patient");
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>Doctor dashboard</Text>
+            <Text style={styles.subtitle}>
+              Record the consultation explanation, review the AI draft, edit the notes, then approve before sending.
+            </Text>
+          </View>
+          <Badge label={sent ? "Sent to patient" : "Draft only"} tone={sent ? "success" : "neutral"} />
+        </View>
+
+        <SafetyDisclaimer />
+        <SessionBar />
+
+        <View style={[styles.grid, isWide && styles.gridWide]}>
+          <Card style={styles.recordCard}>
+            <SectionHeader
+              eyebrow="Recording"
+              title="Consultation audio"
+              description="On web, the app uses the browser MediaRecorder API. On iOS and Android, this prototype uses a mock recorder."
+            />
+            <RecordingStatus status={recorder.status} mode={recorder.mode} errorMessage={recorder.errorMessage} />
+            <RecordButton
+              status={recorder.status}
+              isProcessing={isProcessing}
+              onStart={startRecording}
+              onStop={stopAndProcess}
+            />
+            <ActionButton label="Reset flow" icon={RefreshCw} tone="plain" onPress={reset} />
+            {isProcessing ? (
+              <View style={styles.processingBox}>
+                <Text style={styles.processingTitle}>Processing transcript and summary</Text>
+                <Text style={styles.processingText}>
+                  Mock transcription and AI summarisation are running. Replace these services later with real APIs.
+                </Text>
+              </View>
+            ) : null}
+            <WarningBox title="Processing issue" warnings={processError ? [processError] : []} tone="danger" />
+          </Card>
+
+          <Card style={styles.approvalCard}>
+            <SectionHeader
+              eyebrow="Approval"
+              title="Doctor gate"
+              description={`The patient route only reads summaries saved after this review step. Current recipient: ${targetPatientName}.`}
+            />
+            <View style={styles.approvalRow}>
+              <View style={styles.approvalIcon}>
+                <ShieldCheck size={24} color={colors.primaryDark} />
+              </View>
+              <View style={styles.approvalText}>
+                <Text style={styles.approvalTitle}>I reviewed and approve this summary for the patient.</Text>
+                <Text style={styles.approvalDescription}>
+                  Approval is disabled until the generated content exists and required medication fields are complete.
+                </Text>
+              </View>
+              <Switch
+                value={approved}
+                disabled={!summary || !shareCheck.ok}
+                onValueChange={setApproved}
+                trackColor={{ false: colors.line, true: colors.primarySoft }}
+                thumbColor={approved ? colors.primary : colors.subtle}
+              />
+            </View>
+            <WarningBox title="Fix before sending" warnings={shareCheck.ok ? [] : shareCheck.reasons} tone="warning" />
+            <ActionButton
+              label="Send to Patient"
+              icon={Send}
+              disabled={!summary || !approved || !shareCheck.ok}
+              onPress={sendToPatient}
+            />
+            <ActionButton
+              label="View Patient UI"
+              icon={ClipboardCheck}
+              tone="secondary"
+              onPress={() => router.push("/patient")}
+            />
+          </Card>
+        </View>
+
+        <TranscriptPreview transcription={transcription} />
+
+        {summary ? <DoctorNoteEditor summary={summary} reviewWarnings={reviewWarnings} onChange={updateSummary} /> : null}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background
+  },
+  container: {
+    padding: spacing.xl,
+    gap: spacing.xl,
+    width: "100%",
+    maxWidth: 1180,
+    alignSelf: "center"
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: spacing.lg,
+    flexWrap: "wrap"
+  },
+  title: {
+    color: colors.ink,
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: "900"
+  },
+  subtitle: {
+    color: colors.muted,
+    fontSize: 16,
+    lineHeight: 24,
+    maxWidth: 780,
+    marginTop: spacing.xs
+  },
+  grid: {
+    gap: spacing.lg
+  },
+  gridWide: {
+    flexDirection: "row",
+    alignItems: "stretch"
+  },
+  recordCard: {
+    flex: 1,
+    gap: spacing.lg
+  },
+  approvalCard: {
+    flex: 1,
+    gap: spacing.lg
+  },
+  processingBox: {
+    backgroundColor: colors.infoSoft,
+    borderColor: "#BFD7FF",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: spacing.lg,
+    gap: spacing.xs
+  },
+  processingTitle: {
+    color: colors.info,
+    fontSize: 16,
+    fontWeight: "800"
+  },
+  processingText: {
+    color: colors.ink,
+    fontSize: 14,
+    lineHeight: 20
+  },
+  approvalRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md
+  },
+  approvalIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 999,
+    backgroundColor: colors.primarySoft,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  approvalText: {
+    flex: 1,
+    gap: spacing.xs
+  },
+  approvalTitle: {
+    color: colors.ink,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: "800"
+  },
+  approvalDescription: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 20
+  }
+});

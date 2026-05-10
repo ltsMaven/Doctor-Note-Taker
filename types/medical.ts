@@ -21,6 +21,8 @@ export type FollowUp = {
 };
 
 export type MedicalSummary = {
+  patientId?: string;
+  patientName?: string;
   patientSummary: string;
   tasks: TaskInstruction[];
   medications: Medication[];

@@ -1,4 +1,5 @@
 import { MedicalSummary, MedicationReminder } from "@/types/medical";
+import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
 
 const SUMMARY_KEY = "doctor-note-taker.approved-summary";
 const REMINDERS_KEY = "doctor-note-taker.reminders";
@@ -33,11 +34,12 @@ async function getItem(key: string) {
 }
 
 export async function saveApprovedSummary(summary: MedicalSummary) {
-  await setItem(SUMMARY_KEY, JSON.stringify(summary));
+  const patientId = summary.patientId ?? DEFAULT_PATIENT_ID;
+  await setItem(`${SUMMARY_KEY}.${patientId}`, JSON.stringify(summary));
 }
 
-export async function loadApprovedSummary() {
-  const value = await getItem(SUMMARY_KEY);
+export async function loadApprovedSummary(patientId = DEFAULT_PATIENT_ID) {
+  const value = await getItem(`${SUMMARY_KEY}.${patientId}`) ?? (patientId === DEFAULT_PATIENT_ID ? await getItem(SUMMARY_KEY) : null);
   if (!value) {
     return null;
   }
@@ -49,12 +51,12 @@ export async function loadApprovedSummary() {
   }
 }
 
-export async function saveReminders(reminders: MedicationReminder[]) {
-  await setItem(REMINDERS_KEY, JSON.stringify(reminders));
+export async function saveReminders(reminders: MedicationReminder[], patientId = DEFAULT_PATIENT_ID) {
+  await setItem(`${REMINDERS_KEY}.${patientId}`, JSON.stringify(reminders));
 }
 
-export async function loadReminders() {
-  const value = await getItem(REMINDERS_KEY);
+export async function loadReminders(patientId = DEFAULT_PATIENT_ID) {
+  const value = await getItem(`${REMINDERS_KEY}.${patientId}`) ?? (patientId === DEFAULT_PATIENT_ID ? await getItem(REMINDERS_KEY) : null);
   if (!value) {
     return [];
   }
@@ -66,11 +68,13 @@ export async function loadReminders() {
   }
 }
 
-export async function saveRemindersEnabled(enabled: boolean) {
-  await setItem(REMINDERS_ENABLED_KEY, JSON.stringify(enabled));
+export async function saveRemindersEnabled(enabled: boolean, patientId = DEFAULT_PATIENT_ID) {
+  await setItem(`${REMINDERS_ENABLED_KEY}.${patientId}`, JSON.stringify(enabled));
 }
 
-export async function loadRemindersEnabled() {
-  const value = await getItem(REMINDERS_ENABLED_KEY);
+export async function loadRemindersEnabled(patientId = DEFAULT_PATIENT_ID) {
+  const value =
+    (await getItem(`${REMINDERS_ENABLED_KEY}.${patientId}`)) ??
+    (patientId === DEFAULT_PATIENT_ID ? await getItem(REMINDERS_ENABLED_KEY) : null);
   return value === null ? true : value === "true";
 }

@@ -18,8 +18,7 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "single",
-      "favicon": "./assets/favicon.png"
+      "output": "server"
     },
     "experiments": {
       "typedRoutes": true

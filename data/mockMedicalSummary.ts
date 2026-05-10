@@ -1,4 +1,5 @@
 import { MedicalSummary } from "@/types/medical";
+import { DEFAULT_PATIENT_ID } from "./mockUsers";
 
 export const MOCK_TRANSCRIPT = [
   "The patient has symptoms consistent with an uncomplicated sinus infection.",
@@ -11,6 +12,8 @@ export const MOCK_TRANSCRIPT = [
 ].join(" ");
 
 export const MOCK_MEDICAL_SUMMARY: MedicalSummary = {
+  patientId: DEFAULT_PATIENT_ID,
+  patientName: "Ava Thompson",
   patientSummary:
     "You have symptoms that fit with an uncomplicated sinus infection. Take the prescribed antibiotic as directed, use saline spray for congestion, rest, and watch for any worsening symptoms.",
   tasks: [
