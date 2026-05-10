@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Doctor Note Taker",
+    "slug": "doctor-note-taker",
+    "scheme": "doctornotes",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.prototype.doctornotetaker"
+    },
+    "android": {
+      "package": "com.prototype.doctornotetaker"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
