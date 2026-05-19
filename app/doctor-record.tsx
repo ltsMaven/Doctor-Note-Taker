@@ -131,8 +131,33 @@ function DoctorContent() {
           {isWide ? <DoctorNavigation /> : null}
 
           {!isRecordingActive && !isProcessing && !summary ? (
-            <View style={styles.startPanel}>
-              <Text style={styles.startTitle}>Record consultation</Text>
+            <Card style={styles.startPanel}>
+              <View style={styles.startIcon}>
+                <Mic size={28} color={colors.primaryDark} />
+              </View>
+              <View style={styles.startCopy}>
+                <Text style={styles.startKicker}>Ready to record</Text>
+                <Text style={styles.startTitle}>Record consultation</Text>
+                <Text style={styles.startSubtitle}>Capture the conversation and generate a structured note for doctor review.</Text>
+              </View>
+              <View style={styles.readinessGrid}>
+                <View style={styles.readinessPill}>
+                  <Text style={styles.readinessText}>Microphone prepared</Text>
+                </View>
+                <View style={styles.readinessPill}>
+                  <Text style={styles.readinessText}>Patient instructions after review</Text>
+                </View>
+              </View>
+              <View style={styles.processPreview}>
+                {["Record visit", "AI drafts note", "Doctor approves", "Patient receives summary"].map((step, index) => (
+                  <View key={step} style={styles.processStep}>
+                    <View style={styles.processNumber}>
+                      <Text style={styles.processNumberText}>{index + 1}</Text>
+                    </View>
+                    <Text style={styles.processText}>{step}</Text>
+                  </View>
+                ))}
+              </View>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Start recording"
@@ -144,15 +169,23 @@ function DoctorContent() {
                 <Text style={styles.ovalRecordText}>Start recording</Text>
               </Pressable>
               <WarningBox title="Recording issue" warnings={recorder.errorMessage || processError ? [recorder.errorMessage || processError] : []} tone="danger" />
-            </View>
+            </Card>
           ) : null}
 
           {isRecordingActive ? (
-            <View style={styles.memoPanel}>
+            <Card style={styles.memoPanel}>
+              <View style={styles.recordingHeader}>
+                <View style={styles.recordingBadge}>
+                  <Mic size={22} color={colors.danger} />
+                </View>
+                <View style={styles.recordingHeaderText}>
+                  <Text style={styles.recordingState}>
+                    {recorder.status === "requesting-permission" ? "Preparing microphone" : recorder.status === "paused" ? "Paused" : "Recording"}
+                  </Text>
+                  <Text style={styles.recordingMeta}>Secure consultation note in progress</Text>
+                </View>
+              </View>
               <Text style={styles.timer}>{formatDuration(elapsedSeconds)}</Text>
-              <Text style={styles.recordingState}>
-                {recorder.status === "requesting-permission" ? "Preparing microphone" : recorder.status === "paused" ? "Paused" : "Recording"}
-              </Text>
               <View style={styles.waveform}>
                 {waveformBars.map((height, index) => (
                   <View
@@ -194,17 +227,17 @@ function DoctorContent() {
                 </Pressable>
               </View>
               {recorder.errorMessage ? <Text style={styles.errorText}>{recorder.errorMessage}</Text> : null}
-            </View>
+            </Card>
           ) : null}
 
           {isProcessing ? (
-            <View style={styles.processingPanel}>
+            <Card style={styles.processingPanel}>
               <View style={styles.processingPulse}>
                 <Mic size={26} color={colors.surface} />
               </View>
               <Text style={styles.processingTitle}>Generating clinical note</Text>
               <Text style={styles.processingText}>The recording is being transcribed and summarized for doctor review.</Text>
-            </View>
+            </Card>
           ) : null}
 
           {canShowReview ? (
@@ -285,10 +318,30 @@ const styles = StyleSheet.create({
     paddingBottom: 112
   },
   startPanel: {
-    minHeight: 420,
+    minHeight: 0,
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xl
+    gap: spacing.lg
+  },
+  startIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: radii.pill,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  startCopy: {
+    alignItems: "center",
+    gap: spacing.xs,
+    maxWidth: 520
+  },
+  startKicker: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900",
+    textTransform: "uppercase"
   },
   ovalRecordButton: {
     ...shadow.soft,
@@ -312,6 +365,70 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     textAlign: "center"
   },
+  startSubtitle: {
+    color: colors.muted,
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "700",
+    textAlign: "center"
+  },
+  readinessGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: spacing.sm
+  },
+  readinessPill: {
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: "#BFEAEC",
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7
+  },
+  readinessText: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900"
+  },
+  processPreview: {
+    width: "100%",
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surfaceMuted,
+    padding: spacing.md
+  },
+  processStep: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md
+  },
+  processNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: "#BFEAEC",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  processNumberText: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900"
+  },
+  processText: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "800"
+  },
   ovalRecordText: {
     color: colors.surface,
     fontSize: 17,
@@ -319,10 +436,33 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   memoPanel: {
-    minHeight: 480,
+    minHeight: 420,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     gap: spacing.xl
+  },
+  recordingHeader: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    borderRadius: radii.xl,
+    backgroundColor: colors.dangerSoft,
+    padding: spacing.md
+  },
+  recordingBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  recordingHeaderText: {
+    flex: 1,
+    minWidth: 0
   },
   timer: {
     color: colors.ink,
@@ -331,10 +471,16 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   recordingState: {
-    color: colors.muted,
+    color: colors.danger,
     fontSize: 15,
     lineHeight: 22,
-    fontWeight: "800"
+    fontWeight: "900"
+  },
+  recordingMeta: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "700"
   },
   waveform: {
     minHeight: 120,

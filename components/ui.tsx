@@ -159,14 +159,14 @@ export function FieldLabel({ children, style }: { children: ReactNode; style?: S
 
 export const inputStyles = StyleSheet.create({
   input: {
-    minHeight: 48,
+    minHeight: 52,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     color: colors.ink,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: colors.surface,
     fontSize: 16,
     lineHeight: 22
   },
@@ -179,16 +179,16 @@ export const inputStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    borderRadius: radii.xl,
     borderWidth: 1,
-    borderColor: "#E7EDF5",
-    padding: spacing.lg
+    borderColor: colors.line,
+    padding: spacing.xl
   },
   pageHeader: {
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    borderRadius: radii.xl,
     borderWidth: 1,
-    borderColor: "#E7EDF5",
+    borderColor: colors.line,
     padding: spacing.xl,
     flexDirection: "row",
     alignItems: "center",
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     overflow: "hidden"
   },
   pageAccent: {
-    width: 5,
+    width: 6,
     alignSelf: "stretch",
     borderRadius: radii.pill,
     backgroundColor: colors.primary
@@ -211,16 +211,16 @@ const styles = StyleSheet.create({
     alignItems: "flex-start"
   },
   pageEyebrow: {
-    color: colors.accent,
-    fontWeight: "800",
-    fontSize: 12,
+    color: colors.primaryDark,
+    fontWeight: "900",
+    fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: 0
   },
   pageTitle: {
     color: colors.ink,
-    fontSize: Platform.select({ web: 36, default: 32 }),
-    lineHeight: Platform.select({ web: 42, default: 38 }),
+    fontSize: Platform.select({ web: 34, default: 29 }),
+    lineHeight: Platform.select({ web: 40, default: 35 }),
     fontWeight: "900"
   },
   pageDescription: {
@@ -230,8 +230,8 @@ const styles = StyleSheet.create({
     maxWidth: 760
   },
   button: {
-    minHeight: 48,
-    borderRadius: radii.md,
+    minHeight: 52,
+    borderRadius: radii.lg,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     flexDirection: "row",
@@ -245,8 +245,8 @@ const styles = StyleSheet.create({
     borderColor: colors.primaryDark
   },
   buttonSecondary: {
-    backgroundColor: colors.surface,
-    borderColor: "#A9DAD6"
+    backgroundColor: colors.primarySoft,
+    borderColor: "#BFEAEC"
   },
   buttonDanger: {
     backgroundColor: colors.danger,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.surface,
     fontSize: 16,
-    fontWeight: "700"
+    fontWeight: "900"
   },
   secondaryText: {
     color: colors.primaryDark
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderWidth: 1
   },
   badgeInfo: {
@@ -305,8 +305,9 @@ const styles = StyleSheet.create({
     borderColor: colors.line
   },
   badgeText: {
-    fontSize: 13,
-    fontWeight: "700"
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900"
   },
   badgeTextInfo: {
     color: colors.info
@@ -335,17 +336,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-start"
   },
   eyebrow: {
-    color: colors.accent,
-    fontWeight: "800",
-    fontSize: 12,
+    color: colors.primaryDark,
+    fontWeight: "900",
+    fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: 0
   },
   sectionTitle: {
     color: colors.ink,
-    fontSize: 21,
-    lineHeight: 27,
-    fontWeight: "800"
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "900"
   },
   description: {
     color: colors.muted,
@@ -353,9 +354,12 @@ const styles = StyleSheet.create({
     lineHeight: 22
   },
   fieldLabel: {
-    color: colors.ink,
-    fontSize: 14,
-    fontWeight: "800",
-    marginBottom: spacing.xs
+    color: colors.primaryDark,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900",
+    marginBottom: spacing.xs,
+    textTransform: "uppercase",
+    letterSpacing: 0
   }
 });

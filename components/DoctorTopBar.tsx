@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { CalendarDays, LogOut, Stethoscope } from "lucide-react-native";
+import { CalendarDays, LogOut, ShieldCheck, Stethoscope } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radii, spacing } from "@/constants/theme";
 import { useAuth } from "@/providers/AuthProvider";
@@ -24,6 +24,10 @@ export function DoctorTopBar({ title = "Welcome back" }: { title?: string }) {
           <Text style={styles.name} numberOfLines={1}>
             {user?.name}
           </Text>
+          <View style={styles.statusChip}>
+            <ShieldCheck size={13} color={colors.primaryDark} />
+            <Text style={styles.statusText}>Ready for consultation</Text>
+          </View>
         </View>
       </View>
       <View style={styles.actions}>
@@ -48,7 +52,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.lg
+    gap: spacing.lg,
+    paddingTop: spacing.xs
   },
   profile: {
     flexDirection: "row",
@@ -58,16 +63,17 @@ const styles = StyleSheet.create({
     minWidth: 0
   },
   avatar: {
-    width: 52,
-    height: 52,
+    width: 54,
+    height: 54,
     borderRadius: radii.pill,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
     alignItems: "center",
     justifyContent: "center"
   },
   textBlock: {
     flex: 1,
-    minWidth: 0
+    minWidth: 0,
+    gap: 3
   },
   kicker: {
     color: colors.muted,
@@ -77,8 +83,26 @@ const styles = StyleSheet.create({
   },
   name: {
     color: colors.ink,
-    fontSize: 20,
-    lineHeight: 26,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: "900"
+  },
+  statusChip: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: "#BFEAEC",
+    borderRadius: radii.pill,
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3
+  },
+  statusText: {
+    color: colors.primaryDark,
+    fontSize: 11,
+    lineHeight: 15,
     fontWeight: "900"
   },
   actions: {
@@ -91,7 +115,7 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: "#E7EDF5",
+    borderColor: colors.line,
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center"

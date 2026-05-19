@@ -89,7 +89,12 @@ function DoctorPatientsContent() {
         <ScrollView contentContainerStyle={[styles.container, !isWide && styles.mobileContainer]}>
           <DoctorTopBar title="Patients" />
 
-          <PageHeader title="Patients" right={<Badge label={`${patients.length} unique IDs`} tone="neutral" />} />
+          <PageHeader
+            eyebrow="Patient directory"
+            title="Patients"
+            description="Manage patient profiles, approved care plans, and reminder status from one workspace."
+            right={<Badge label={`${patients.length} unique IDs`} tone="neutral" />}
+          />
           {isWide ? <DoctorNavigation /> : null}
 
           <Card style={styles.newPatientCard}>
@@ -112,6 +117,7 @@ function DoctorPatientsContent() {
                   placeholderTextColor={colors.subtle}
                   style={inputStyles.input}
                 />
+                <Text style={styles.inputHelp}>Use the patient ID from intake or create a new placeholder profile.</Text>
               </View>
               <ActionButton label="Add" icon={Plus} onPress={addPatient} />
             </View>
@@ -119,9 +125,22 @@ function DoctorPatientsContent() {
           </Card>
 
           <View style={styles.patientList}>
+            {patients.length === 0 ? (
+              <Card style={styles.emptyCard}>
+                <View style={styles.patientIcon}>
+                  <UserRound size={26} color={colors.primaryDark} />
+                </View>
+                <View style={styles.patientText}>
+                  <Text style={styles.patientName}>No patients yet</Text>
+                  <Text style={styles.patientMeta}>Add a unique ID to create the first patient slot.</Text>
+                </View>
+              </Card>
+            ) : null}
+
             {patients.map((patient) => {
               const pendingReminders = patient.reminders.filter((reminder) => reminder.status === "Pending").length;
               const displayName = patient.summary?.patientName ?? patient.intake?.name ?? patient.displayName;
+              const carePlanReady = !!patient.summary?.doctorApproved;
 
               return (
                 <Card key={patient.patientId} style={styles.patientCard}>
@@ -129,7 +148,10 @@ function DoctorPatientsContent() {
                     <UserRound size={26} color={colors.primaryDark} />
                   </View>
                   <View style={styles.patientText}>
-                    <Text style={styles.patientName}>{displayName}</Text>
+                    <View style={styles.patientHeader}>
+                      <Text style={styles.patientName}>{displayName}</Text>
+                      <Badge label={carePlanReady ? "Care plan ready" : "Care plan pending"} tone={carePlanReady ? "success" : "neutral"} />
+                    </View>
                     <Text style={styles.patientMeta}>Unique ID: {patient.patientId}</Text>
                     {patient.intake ? (
                       <Text style={styles.patientMeta}>
@@ -144,6 +166,10 @@ function DoctorPatientsContent() {
                       <View style={styles.stat}>
                         <Clock3 size={16} color={colors.primaryDark} />
                         <Text style={styles.statText}>{pendingReminders} pending</Text>
+                      </View>
+                      <View style={styles.stat}>
+                        <ClipboardCheck size={16} color={colors.primaryDark} />
+                        <Text style={styles.statText}>{carePlanReady ? "approved" : "awaiting note"}</Text>
                       </View>
                     </View>
                   </View>
@@ -186,7 +212,8 @@ const styles = StyleSheet.create({
     paddingBottom: 112
   },
   newPatientCard: {
-    gap: spacing.lg
+    gap: spacing.lg,
+    backgroundColor: colors.surface
   },
   addRow: {
     flexDirection: "row",
@@ -196,7 +223,14 @@ const styles = StyleSheet.create({
   },
   inputWrap: {
     flex: 1,
-    minWidth: 220
+    minWidth: 220,
+    gap: spacing.xs
+  },
+  inputHelp: {
+    color: colors.subtle,
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: "700"
   },
   error: {
     color: colors.danger,
@@ -212,11 +246,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.lg
   },
+  emptyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.lg,
+    backgroundColor: colors.surfaceMuted
+  },
   patientIcon: {
-    width: 58,
-    height: 58,
+    width: 60,
+    height: 60,
     borderRadius: radii.pill,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center"
   },
@@ -229,7 +269,15 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 20,
     lineHeight: 26,
-    fontWeight: "900"
+    fontWeight: "900",
+    flexShrink: 1
+  },
+  patientHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
+    flexWrap: "wrap"
   },
   patientMeta: {
     color: colors.muted,
@@ -248,7 +296,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
     borderRadius: radii.pill,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: "#BFEAEC",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs
   },
@@ -259,8 +309,8 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   openButton: {
-    width: 46,
-    height: 46,
+    width: 48,
+    height: 48,
     borderRadius: radii.pill,
     backgroundColor: colors.primary,
     alignItems: "center",

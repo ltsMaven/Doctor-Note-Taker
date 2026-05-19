@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { LogIn, ShieldCheck, UserPlus } from "lucide-react-native";
+import { LogIn, ShieldCheck, Stethoscope, UserPlus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -69,10 +69,23 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
         <Card style={styles.card}>
+          <View style={styles.brandPanel}>
+            <View style={styles.brandIcon}>
+              <Stethoscope size={26} color={colors.surface} />
+            </View>
+            <View style={styles.brandText}>
+              <Text style={styles.brandTitle}>Doctor AI Note Taker</Text>
+              <Text style={styles.brandSubtitle}>Secure consultation note workspace</Text>
+            </View>
+            <View style={styles.brandChip}>
+              <Text style={styles.brandChipText}>Demo</Text>
+            </View>
+          </View>
+
           <SectionHeader
-            eyebrow="Mock login"
+            eyebrow="Secure prototype session"
             title={selectedUser?.name ?? "Sign in"}
-            description="This prototype stores only the selected user ID and session time locally. It does not store the PIN."
+            description="Local demo credentials only. Continue to record, review, and approve patient-ready instructions."
           />
 
           <View style={styles.accountCard}>
@@ -80,9 +93,21 @@ export default function LoginScreen() {
               <ShieldCheck size={22} color={colors.primaryDark} />
             </View>
             <View style={styles.userText}>
-              <Text style={styles.userName}>{selectedUser?.title}</Text>
-              <Text style={styles.userEmail}>{selectedUser?.role === "doctor" ? "Doctor account" : "Patient account"}</Text>
+              <Text style={styles.userName}>{selectedUser?.name}</Text>
+              <Text style={styles.userEmail}>
+                {selectedUser?.role === "doctor" ? "Doctor account" : "Patient account"} - {selectedUser?.title}
+              </Text>
             </View>
+            <View style={styles.accountChip}>
+              <Text style={styles.accountChipText}>{selectedUser?.role === "doctor" ? "Clinician" : "Patient"}</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoNote}>
+            <ShieldCheck size={16} color={colors.primaryDark} />
+            <Text style={styles.infoNoteText}>
+              This prototype stores only the selected user ID and session time locally. It does not store the PIN.
+            </Text>
           </View>
 
           <View>
@@ -166,26 +191,76 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.xl,
     width: "100%",
-    maxWidth: 980,
-    alignSelf: "center"
+    maxWidth: 720,
+    alignSelf: "center",
+    justifyContent: "center",
+    minHeight: "100%"
   },
   card: {
-    gap: spacing.lg
+    gap: spacing.lg,
+    overflow: "hidden"
+  },
+  brandPanel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: "#BFEAEC",
+    borderRadius: radii.xl,
+    backgroundColor: colors.primaryDeep,
+    padding: spacing.lg
+  },
+  brandIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radii.pill,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  brandText: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2
+  },
+  brandTitle: {
+    color: colors.surface,
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: "900"
+  },
+  brandSubtitle: {
+    color: "#BFEAEC",
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: "700"
+  },
+  brandChip: {
+    borderRadius: radii.pill,
+    backgroundColor: "rgba(255,255,255,0.14)",
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6
+  },
+  brandChipText: {
+    color: colors.surface,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900"
   },
   accountCard: {
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radii.md,
+    borderColor: "#BFEAEC",
+    borderRadius: radii.xl,
     padding: spacing.lg,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
     flexWrap: "wrap",
-    backgroundColor: colors.surfaceMuted
+    backgroundColor: colors.primarySoft
   },
   userIcon: {
-    width: 42,
-    height: 42,
+    width: 48,
+    height: 48,
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
     alignItems: "center",
@@ -198,13 +273,46 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: colors.ink,
-    fontSize: 17,
+    fontSize: 18,
+    lineHeight: 24,
     fontWeight: "900"
   },
   userEmail: {
     color: colors.primaryDark,
     fontSize: 13,
-    lineHeight: 19
+    lineHeight: 19,
+    fontWeight: "700"
+  },
+  accountChip: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: "#BFEAEC"
+  },
+  accountChipText: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900"
+  },
+  infoNote: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surfaceMuted,
+    padding: spacing.md
+  },
+  infoNoteText: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: "700"
   },
   error: {
     color: colors.danger,

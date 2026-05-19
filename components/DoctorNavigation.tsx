@@ -16,7 +16,7 @@ export function DoctorNavigation() {
   const isWide = width >= 760;
 
   return (
-    <View style={[isWide ? styles.navbar : styles.footbar, shadow.soft]}>
+    <View style={[isWide ? styles.navbar : styles.footbar, shadow.floating]}>
       {items.map((item) => {
         const Icon = item.icon;
         const active = pathname === item.href;
@@ -27,9 +27,14 @@ export function DoctorNavigation() {
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             onPress={() => router.push(item.href as never)}
-            style={[styles.item, active && styles.itemActive, isWide && styles.itemWide]}
+            style={({ pressed }) => [
+              styles.item,
+              active && styles.itemActive,
+              isWide && styles.itemWide,
+              pressed && styles.itemPressed
+            ]}
           >
-            <Icon size={22} color={active ? colors.surface : colors.primaryDark} />
+            <Icon size={21} color={active ? colors.surface : colors.primaryDark} />
             <Text style={[styles.label, active && styles.labelActive]}>{item.label}</Text>
           </Pressable>
         );
@@ -47,13 +52,13 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#E7EDF5"
+    borderColor: colors.line
   },
   footbar: {
     position: "absolute",
-    left: spacing.lg,
-    right: spacing.lg,
-    bottom: spacing.lg,
+    left: spacing.xl,
+    right: spacing.xl,
+    bottom: spacing.xl,
     flexDirection: "row",
     justifyContent: "space-between",
     gap: spacing.sm,
@@ -61,15 +66,15 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#E7EDF5"
+    borderColor: colors.line
   },
   item: {
     flex: 1,
-    minHeight: 54,
+    minHeight: 56,
     borderRadius: radii.pill,
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
+    gap: 3,
     paddingHorizontal: spacing.sm
   },
   itemWide: {
@@ -81,11 +86,14 @@ const styles = StyleSheet.create({
   itemActive: {
     backgroundColor: colors.primary
   },
+  itemPressed: {
+    opacity: 0.82
+  },
   label: {
     color: colors.primaryDark,
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: "800"
+    fontWeight: "900"
   },
   labelActive: {
     color: colors.surface
