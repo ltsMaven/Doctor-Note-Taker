@@ -4,7 +4,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, radii, spacing } from "@/constants/theme";
 import { UserRole } from "@/types/auth";
-import { SessionBar } from "./SessionBar";
 import { ActionButton, Card, SectionHeader } from "./ui";
 
 export function LoadingGate() {
@@ -24,7 +23,6 @@ export function AccessDenied({ allowedRoles }: { allowedRoles: UserRole[] }) {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <View style={styles.container}>
-        <SessionBar />
         <Card style={styles.card}>
           <View style={styles.icon}>
             <LockKeyhole size={28} color={colors.primaryDark} />

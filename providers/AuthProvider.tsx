@@ -1,12 +1,19 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getDemoPinHint, listUsers, loadCurrentUser, signInWithPin, signOut as clearSession } from "@/services/authService";
+import {
+  getDemoPinHint,
+  listUsers,
+  loadCurrentUser,
+  signInWithCredentials,
+  signInWithPin,
+  signOut as clearSession
+} from "@/services/authService";
 import { AppUser } from "@/types/auth";
 
 type AuthContextValue = {
   user: AppUser | null;
   users: AppUser[];
   isLoading: boolean;
-  signIn: (userId: string, pin: string) => Promise<{ ok: boolean; error: string }>;
+  signIn: (userId: string, email: string, pin: string, certificateCode?: string) => Promise<{ ok: boolean; error: string }>;
   switchUser: (userId: string, pin: string) => Promise<{ ok: boolean; error: string }>;
   signOut: () => Promise<void>;
   getPinHint: (userId: string) => string;
@@ -34,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (userId: string, pin: string) => {
-    const result = await signInWithPin(userId, pin);
+  const signIn = useCallback(async (userId: string, email: string, pin: string, certificateCode = "") => {
+    const result = await signInWithCredentials(userId, email, pin, certificateCode);
     if (result.user) {
       setUser(result.user);
       return { ok: true, error: "" };
@@ -50,9 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: true, error: "" };
       }
 
-      return signIn(userId, pin);
+      const result = await signInWithPin(userId, pin);
+      if (result.user) {
+        setUser(result.user);
+        return { ok: true, error: "" };
+      }
+
+      return { ok: false, error: result.error };
     },
-    [signIn, user?.id]
+    [user?.id]
   );
 
   const signOut = useCallback(async () => {

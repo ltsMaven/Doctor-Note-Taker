@@ -7,6 +7,7 @@ const labels: Record<Status, string> = {
   idle: "Ready to record",
   "requesting-permission": "Requesting microphone access",
   recording: "Recording in progress",
+  paused: "Recording paused",
   stopped: "Recording stopped",
   error: "Recording error"
 };

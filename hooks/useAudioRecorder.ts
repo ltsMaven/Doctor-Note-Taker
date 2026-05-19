@@ -1,12 +1,14 @@
 import { useCallback, useRef, useState } from "react";
 import { Platform } from "react-native";
 
-export type RecordingStatus = "idle" | "requesting-permission" | "recording" | "stopped" | "error";
+export type RecordingStatus = "idle" | "requesting-permission" | "recording" | "paused" | "stopped" | "error";
 export type RecordingMode = "browser-media-recorder" | "mock-mobile";
 
 type RecorderLike = {
   start: () => void;
   stop: () => void;
+  pause?: () => void;
+  resume?: () => void;
   state?: string;
   ondataavailable: ((event: { data: Blob }) => void) | null;
   onstop: (() => void) | null;
@@ -121,6 +123,34 @@ export function useAudioRecorder() {
     });
   }, [audioBlob, mode, stopTracks]);
 
+  const pauseRecording = useCallback(() => {
+    setErrorMessage("");
+
+    if (status !== "recording") {
+      return;
+    }
+
+    if (mode === "browser-media-recorder" && recorderRef.current?.pause) {
+      recorderRef.current.pause();
+    }
+
+    setStatus("paused");
+  }, [mode, status]);
+
+  const resumeRecording = useCallback(() => {
+    setErrorMessage("");
+
+    if (status !== "paused") {
+      return;
+    }
+
+    if (mode === "browser-media-recorder" && recorderRef.current?.resume) {
+      recorderRef.current.resume();
+    }
+
+    setStatus("recording");
+  }, [mode, status]);
+
   const resetRecording = useCallback(() => {
     recorderRef.current = null;
     chunksRef.current = [];
@@ -137,6 +167,8 @@ export function useAudioRecorder() {
     audioBlob,
     isRecording: status === "recording",
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
     resetRecording
   };

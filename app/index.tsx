@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
-import { Bell, ClipboardCheck, LogIn, Stethoscope, UserRound } from "lucide-react-native";
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Bell, ClipboardCheck, Stethoscope, UserRound } from "lucide-react-native";
+import { Animated, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRef } from "react";
 import { colors, spacing } from "@/constants/theme";
-import { SessionBar } from "@/components/SessionBar";
 import { ActionButton, Card, PageHeader, SectionHeader } from "@/components/ui";
 import { SafetyDisclaimer } from "@/components/WarningBox";
 import { useAuth } from "@/providers/AuthProvider";
@@ -15,6 +15,66 @@ export default function HomeScreen() {
   const isWide = width >= 820;
   const canOpenDoctor = user?.role === "doctor";
   const canOpenPatient = !!user;
+  const doctorScale = useRef(new Animated.Value(1)).current;
+  const patientScale = useRef(new Animated.Value(1)).current;
+
+  const chooseRole = (scale: Animated.Value, route: "/login?userId=doctor-rivera" | "/patient-landing") => {
+    Animated.sequence([
+      Animated.spring(scale, {
+        toValue: 1.08,
+        friction: 4,
+        tension: 140,
+        useNativeDriver: true
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 5,
+        tension: 120,
+        useNativeDriver: true
+      })
+    ]).start(() => router.push(route as never));
+  };
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <PageHeader
+            title="Doctor Note Taker"
+            right={
+              <View style={styles.logo}>
+                <Stethoscope size={28} color={colors.surface} />
+              </View>
+            }
+          />
+
+          <View style={[styles.roleGrid, isWide && styles.roleGridWide]}>
+            <Animated.View style={[styles.roleCardWrap, { transform: [{ scale: doctorScale }] }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Continue as doctor"
+                style={({ pressed }) => [styles.roleCard, pressed && styles.roleCardPressed]}
+                onPress={() => chooseRole(doctorScale, "/login?userId=doctor-rivera")}
+              >
+                <Stethoscope size={64} color={colors.primaryDark} />
+              </Pressable>
+            </Animated.View>
+
+            <Animated.View style={[styles.roleCardWrap, { transform: [{ scale: patientScale }] }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Continue as patient"
+                style={({ pressed }) => [styles.roleCard, pressed && styles.roleCardPressed]}
+                onPress={() => chooseRole(patientScale, "/patient-landing")}
+              >
+                <UserRound size={64} color={colors.primaryDark} />
+              </Pressable>
+            </Animated.View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
@@ -31,18 +91,6 @@ export default function HomeScreen() {
         />
 
         <SafetyDisclaimer />
-        {user ? <SessionBar /> : null}
-
-        {!user ? (
-          <Card style={styles.loginCard}>
-            <SectionHeader
-              eyebrow="Session required"
-              title="Sign in to continue"
-              description="Use the demo doctor or patient account. Switching users later requires the selected account's PIN."
-            />
-            <ActionButton label="Open Login" icon={LogIn} onPress={() => router.push("/login")} />
-          </Card>
-        ) : null}
 
         <View style={[styles.grid, isWide && styles.gridWide]}>
           <Card style={styles.routeCard}>
@@ -113,11 +161,35 @@ const styles = StyleSheet.create({
   gridWide: {
     flexDirection: "row"
   },
-  routeCard: {
-    flex: 1,
+  roleGrid: {
     gap: spacing.lg
   },
-  loginCard: {
+  roleGridWide: {
+    flexDirection: "row",
+    justifyContent: "center"
+  },
+  roleCardWrap: {
+    flex: 1,
+    maxWidth: 360,
+    alignSelf: "center",
+    width: "100%"
+  },
+  roleCard: {
+    minHeight: 220,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E7EDF5",
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%"
+  },
+  roleCardPressed: {
+    borderColor: colors.primary,
+    backgroundColor: colors.surfaceSoft
+  },
+  routeCard: {
+    flex: 1,
     gap: spacing.lg
   },
   iconLine: {

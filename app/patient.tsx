@@ -1,14 +1,13 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import { BellOff, Stethoscope, UserRound } from "lucide-react-native";
+import { BellOff, LogOut, Stethoscope, UserRound } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AccessDenied, LoadingGate } from "@/components/AccessDenied";
 import { FollowUpCard } from "@/components/FollowUpCard";
 import { MedicationTable } from "@/components/MedicationTable";
 import { PatientInstructionChecklist } from "@/components/PatientInstructionChecklist";
 import { ReminderList } from "@/components/ReminderList";
-import { SessionBar } from "@/components/SessionBar";
 import { ActionButton, Badge, Card, PageHeader, SectionHeader } from "@/components/ui";
 import { WarningBox } from "@/components/WarningBox";
 import { colors, radii, spacing } from "@/constants/theme";
@@ -41,7 +40,7 @@ export default function PatientScreen() {
 
 function PatientContent() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 960;
   const [summary, setSummary] = useState<MedicalSummary | null>(null);
@@ -95,6 +94,11 @@ function PatientContent() {
     await saveRemindersEnabled(enabled, patientId);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace("/");
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
@@ -109,7 +113,8 @@ function PatientContent() {
     return (
       <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
         <ScrollView contentContainerStyle={styles.container}>
-          <SessionBar />
+          <PatientTopBar name={user?.name} onSignOut={handleSignOut} />
+
           <Card style={styles.emptyCard}>
             <View style={styles.emptyIcon}>
               <UserRound size={30} color={colors.primaryDark} />
@@ -131,15 +136,14 @@ function PatientContent() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
+        <PatientTopBar name={user?.name} onSignOut={handleSignOut} />
+
         <PageHeader
           eyebrow="Patient instructions"
           title="Your care plan"
           description={`Plain-language instructions reviewed by your doctor${summary.patientName ? ` for ${summary.patientName}` : ""}.`}
           right={<Badge label="Doctor approved" tone="success" />}
         />
-
-        <SessionBar />
-
         <Card>
           <SectionHeader eyebrow="Summary" title="What this means" />
           <Text style={styles.summaryText}>{summary.patientSummary}</Text>
@@ -184,6 +188,27 @@ function PatientContent() {
   );
 }
 
+function PatientTopBar({ name, onSignOut }: { name?: string; onSignOut: () => void }) {
+  return (
+    <View style={styles.topRow}>
+      <View style={styles.profile}>
+        <View style={styles.emptyIconSmall}>
+          <UserRound size={22} color={colors.primaryDark} />
+        </View>
+        <View style={styles.profileText}>
+          <Text style={styles.topLabel}>Signed in</Text>
+          <Text style={styles.topName} numberOfLines={1}>
+            {name}
+          </Text>
+        </View>
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Sign out" onPress={onSignOut} style={styles.signOutButton}>
+        <LogOut size={20} color={colors.primaryDark} />
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -205,6 +230,53 @@ const styles = StyleSheet.create({
   loadingText: {
     color: colors.muted,
     fontSize: 16
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: spacing.lg
+  },
+  profile: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    flex: 1,
+    minWidth: 0
+  },
+  emptyIconSmall: {
+    width: 46,
+    height: 46,
+    borderRadius: radii.pill,
+    backgroundColor: colors.primarySoft,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  profileText: {
+    flex: 1,
+    minWidth: 0
+  },
+  topLabel: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "700"
+  },
+  topName: {
+    color: colors.ink,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "900"
+  },
+  signOutButton: {
+    width: 46,
+    height: 46,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: "#E7EDF5",
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center"
   },
   summaryText: {
     color: colors.ink,

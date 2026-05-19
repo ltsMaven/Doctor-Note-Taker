@@ -17,12 +17,17 @@ export default function RootLayout() {
               headerTintColor: colors.ink,
               headerTitleStyle: { fontWeight: "900" },
               headerShadowVisible: false,
+              headerBackVisible: false,
               contentStyle: { backgroundColor: colors.background }
             }}
           >
             <Stack.Screen name="index" options={{ title: "Doctor Note Taker" }} />
+            <Stack.Screen name="patient-landing" options={{ title: "Patient" }} />
             <Stack.Screen name="login" options={{ title: "Sign in" }} />
             <Stack.Screen name="doctor" options={{ title: "Doctor" }} />
+            <Stack.Screen name="doctor-record" options={{ title: "Record" }} />
+            <Stack.Screen name="doctor-patients" options={{ title: "Patients" }} />
+            <Stack.Screen name="doctor-patient/[patientId]" options={{ title: "Patient details" }} />
             <Stack.Screen name="patient" options={{ title: "Patient" }} />
           </Stack>
           <StatusBar style="dark" />

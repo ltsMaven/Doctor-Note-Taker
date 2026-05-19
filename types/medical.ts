@@ -56,3 +56,9 @@ export type MedicationReminder = {
   instructions: string;
   status: ReminderStatus;
 };
+
+export type PatientDirectoryEntry = {
+  patientId: string;
+  displayName: string;
+  addedAt: string;
+};

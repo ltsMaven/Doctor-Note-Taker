@@ -1,12 +1,12 @@
-import { useRouter } from "expo-router";
-import { LogIn, ShieldCheck, Stethoscope } from "lucide-react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { LogIn, ShieldCheck } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SafetyDisclaimer } from "@/components/WarningBox";
-import { ActionButton, Badge, Card, FieldLabel, inputStyles, PageHeader, SectionHeader } from "@/components/ui";
+import { ActionButton, Card, FieldLabel, inputStyles, SectionHeader } from "@/components/ui";
 import { colors, radii, spacing } from "@/constants/theme";
 import { useAuth } from "@/providers/AuthProvider";
+import { DOCTOR_CERTIFICATE_CODE } from "@/services/authService";
 import { AppUser } from "@/types/auth";
 
 function homeForUser(user: AppUser) {
@@ -15,9 +15,12 @@ function homeForUser(user: AppUser) {
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { userId } = useLocalSearchParams<{ userId?: string }>();
   const { user, users, signIn, getPinHint, isLoading } = useAuth();
   const [selectedUserId, setSelectedUserId] = useState(users[0]?.id ?? "");
+  const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
+  const [certificateCode, setCertificateCode] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,12 +30,30 @@ export default function LoginScreen() {
     }
   }, [isLoading, router, user]);
 
+  useEffect(() => {
+    const requestedUserId = Array.isArray(userId) ? userId[0] : userId;
+    if (requestedUserId && users.some((candidate) => candidate.id === requestedUserId)) {
+      setSelectedUserId(requestedUserId);
+      setEmail(users.find((candidate) => candidate.id === requestedUserId)?.email ?? "");
+      setPin("");
+      setCertificateCode("");
+      setError("");
+    }
+  }, [userId, users]);
+
   const selectedUser = users.find((candidate) => candidate.id === selectedUserId);
+  const isDoctor = selectedUser?.role === "doctor";
+
+  useEffect(() => {
+    if (!email && selectedUser) {
+      setEmail(selectedUser.email);
+    }
+  }, [email, selectedUser]);
 
   const handleLogin = async () => {
     setError("");
     setIsSubmitting(true);
-    const result = await signIn(selectedUserId, pin);
+    const result = await signIn(selectedUserId, email, pin, certificateCode);
     setIsSubmitting(false);
 
     if (!result.ok) {
@@ -47,58 +68,41 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <PageHeader
-          eyebrow="Secure prototype"
-          title="Doctor Note Taker"
-          description="Choose a demo account to review clinical notes or view patient instructions."
-          right={
-            <View style={styles.logo}>
-              <Stethoscope size={28} color={colors.surface} />
-            </View>
-          }
-        />
-
-        <SafetyDisclaimer />
-
         <Card style={styles.card}>
           <SectionHeader
             eyebrow="Mock login"
-            title="Select user"
+            title={selectedUser?.name ?? "Sign in"}
             description="This prototype stores only the selected user ID and session time locally. It does not store the PIN."
           />
 
-          <View style={styles.userGrid}>
-            {users.map((candidate) => {
-              const selected = candidate.id === selectedUserId;
-
-              return (
-                <Pressable
-                  key={candidate.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected }}
-                  onPress={() => {
-                    setSelectedUserId(candidate.id);
-                    setPin("");
-                    setError("");
-                  }}
-                  style={[styles.userCard, selected && styles.userCardSelected]}
-                >
-                  <View style={styles.userIcon}>
-                    <ShieldCheck size={22} color={selected ? colors.primaryDark : colors.muted} />
-                  </View>
-                  <View style={styles.userText}>
-                    <Text style={styles.userName}>{candidate.name}</Text>
-                    <Text style={styles.userMeta}>{candidate.title}</Text>
-                    <Text style={styles.userEmail}>{candidate.email}</Text>
-                  </View>
-                  <Badge label={candidate.role} tone={candidate.role === "doctor" ? "info" : "success"} />
-                </Pressable>
-              );
-            })}
+          <View style={styles.accountCard}>
+            <View style={styles.userIcon}>
+              <ShieldCheck size={22} color={colors.primaryDark} />
+            </View>
+            <View style={styles.userText}>
+              <Text style={styles.userName}>{selectedUser?.title}</Text>
+              <Text style={styles.userEmail}>{selectedUser?.role === "doctor" ? "Doctor account" : "Patient account"}</Text>
+            </View>
           </View>
 
           <View>
-            <FieldLabel>PIN for {selectedUser?.name ?? "selected user"}</FieldLabel>
+            <FieldLabel>Email</FieldLabel>
+            <TextInput
+              value={email}
+              onChangeText={(value) => {
+                setEmail(value);
+                setError("");
+              }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder={selectedUser?.email ?? "Email"}
+              placeholderTextColor={colors.subtle}
+              style={inputStyles.input}
+            />
+          </View>
+
+          <View>
+            <FieldLabel>PIN</FieldLabel>
             <TextInput
               value={pin}
               onChangeText={(value) => {
@@ -113,13 +117,30 @@ export default function LoginScreen() {
             />
           </View>
 
+          {isDoctor ? (
+            <View>
+              <FieldLabel>Certificate code</FieldLabel>
+              <TextInput
+                value={certificateCode}
+                onChangeText={(value) => {
+                  setCertificateCode(value);
+                  setError("");
+                }}
+                autoCapitalize="characters"
+                placeholder={`Demo certificate: ${DOCTOR_CERTIFICATE_CODE}`}
+                placeholderTextColor={colors.subtle}
+                style={inputStyles.input}
+              />
+            </View>
+          ) : null}
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <ActionButton
             label="Sign in"
             icon={LogIn}
             loading={isSubmitting}
-            disabled={pin.trim().length === 0}
+            disabled={email.trim().length === 0 || pin.trim().length === 0 || (isDoctor && certificateCode.trim().length === 0)}
             onPress={handleLogin}
           />
         </Card>
@@ -140,21 +161,10 @@ const styles = StyleSheet.create({
     maxWidth: 980,
     alignSelf: "center"
   },
-  logo: {
-    width: 56,
-    height: 56,
-    borderRadius: radii.md,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center"
-  },
   card: {
     gap: spacing.lg
   },
-  userGrid: {
-    gap: spacing.md
-  },
-  userCard: {
+  accountCard: {
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: radii.md,
@@ -164,10 +174,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     flexWrap: "wrap",
     backgroundColor: colors.surfaceMuted
-  },
-  userCardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: "#F2FBFA"
   },
   userIcon: {
     width: 42,
@@ -186,11 +192,6 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 17,
     fontWeight: "900"
-  },
-  userMeta: {
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20
   },
   userEmail: {
     color: colors.primaryDark,

@@ -2,6 +2,7 @@ import { DEMO_USERS, findDemoUser, publicUser } from "@/data/mockUsers";
 import { AppUser, AuthSession } from "@/types/auth";
 
 const SESSION_KEY = "doctor-note-taker.auth-session";
+export const DOCTOR_CERTIFICATE_CODE = "CERT-2026";
 const memoryStore = new Map<string, string>();
 
 function hasLocalStorage() {
@@ -75,6 +76,36 @@ export async function signInWithPin(userId: string, pin: string) {
     return {
       user: null,
       error: "The selected user and PIN do not match."
+    };
+  }
+
+  const session: AuthSession = {
+    userId: user.id,
+    signedInAt: new Date().toISOString()
+  };
+
+  await setItem(SESSION_KEY, JSON.stringify(session));
+
+  return {
+    user: publicUser(user),
+    error: ""
+  };
+}
+
+export async function signInWithCredentials(userId: string, email: string, pin: string, certificateCode = "") {
+  const user = findDemoUser(userId);
+
+  if (!user || user.email.toLowerCase() !== email.trim().toLowerCase() || user.demoPin !== pin.trim()) {
+    return {
+      user: null,
+      error: "The email and PIN do not match this account."
+    };
+  }
+
+  if (user.role === "doctor" && certificateCode.trim() !== DOCTOR_CERTIFICATE_CODE) {
+    return {
+      user: null,
+      error: "The doctor certificate code is not valid."
     };
   }
 
