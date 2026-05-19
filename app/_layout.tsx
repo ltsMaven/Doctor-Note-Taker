@@ -26,6 +26,7 @@ export default function RootLayout() {
             <Stack.Screen name="patient-signup" options={{ title: "Patient sign up" }} />
             <Stack.Screen name="login" options={{ title: "Sign in" }} />
             <Stack.Screen name="doctor" options={{ title: "Doctor" }} />
+            <Stack.Screen name="doctor-appointments" options={{ title: "Appointments" }} />
             <Stack.Screen name="doctor-record" options={{ title: "Record" }} />
             <Stack.Screen name="doctor-patients" options={{ title: "Patients" }} />
             <Stack.Screen name="doctor-patient/[patientId]" options={{ title: "Patient details" }} />

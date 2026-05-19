@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { LogOut, Stethoscope } from "lucide-react-native";
+import { CalendarDays, LogOut, Stethoscope } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radii, spacing } from "@/constants/theme";
 import { useAuth } from "@/providers/AuthProvider";
@@ -26,9 +26,19 @@ export function DoctorTopBar({ title = "Welcome back" }: { title?: string }) {
           </Text>
         </View>
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Sign out" onPress={handleSignOut} style={styles.iconButton}>
-        <LogOut size={20} color={colors.primaryDark} />
-      </Pressable>
+      <View style={styles.actions}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="View appointments"
+          onPress={() => router.push("/doctor-appointments" as never)}
+          style={styles.iconButton}
+        >
+          <CalendarDays size={20} color={colors.primaryDark} />
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Sign out" onPress={handleSignOut} style={styles.iconButton}>
+          <LogOut size={20} color={colors.primaryDark} />
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -70,6 +80,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 26,
     fontWeight: "900"
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm
   },
   iconButton: {
     width: 46,
