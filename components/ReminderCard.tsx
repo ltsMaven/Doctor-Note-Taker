@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: spacing.lg,
     gap: spacing.md,
-    backgroundColor: colors.surface
+    backgroundColor: colors.surfaceMuted
   },
   disabled: {
     opacity: 0.68

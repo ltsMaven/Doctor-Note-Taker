@@ -1,25 +1,30 @@
 import { Platform, StyleSheet } from "react-native";
 
 export const colors = {
-  background: "#F5F8FA",
+  background: "#F7F9FC",
+  backgroundAlt: "#EFF6F4",
   surface: "#FFFFFF",
-  surfaceSoft: "#EDF6F5",
-  ink: "#102A43",
-  muted: "#52606D",
-  subtle: "#829AB1",
-  line: "#D9E2EC",
-  primary: "#176B87",
-  primaryDark: "#0B4F6C",
-  primarySoft: "#D7F2F0",
-  success: "#2F855A",
-  successSoft: "#DCFCE7",
-  warning: "#B7791F",
-  warningSoft: "#FEF3C7",
-  danger: "#C53030",
-  dangerSoft: "#FEE2E2",
-  info: "#2B6CB0",
-  infoSoft: "#DBEAFE",
-  neutralSoft: "#E6F0F2"
+  surfaceSoft: "#F1F7F6",
+  surfaceMuted: "#F8FAFC",
+  ink: "#172033",
+  muted: "#53627A",
+  subtle: "#8A97AA",
+  line: "#DDE5EF",
+  lineStrong: "#C7D2E1",
+  primary: "#087E8B",
+  primaryDark: "#07535D",
+  primarySoft: "#DDF4F1",
+  accent: "#5B5F97",
+  accentSoft: "#EDEEFF",
+  success: "#217A54",
+  successSoft: "#E4F8ED",
+  warning: "#9A650E",
+  warningSoft: "#FFF4D6",
+  danger: "#B42318",
+  dangerSoft: "#FFE8E5",
+  info: "#2563A8",
+  infoSoft: "#E6F0FF",
+  neutralSoft: "#EEF3F8"
 };
 
 export const spacing = {
@@ -41,14 +46,28 @@ export const shadow = StyleSheet.create({
   card: {
     ...Platform.select({
       web: {
-        boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)"
+        boxShadow: "0 14px 40px rgba(23, 32, 51, 0.08)"
       },
       default: {
-        shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 6 },
+        shadowColor: "#172033",
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.08,
-        shadowRadius: 12,
+        shadowRadius: 16,
         elevation: 2
+      }
+    })
+  },
+  soft: {
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 24px rgba(23, 32, 51, 0.06)"
+      },
+      default: {
+        shadowColor: "#172033",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 1
       }
     })
   }

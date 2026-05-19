@@ -37,7 +37,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     flexDirection: "row",
     gap: spacing.md,
-    marginBottom: spacing.lg
+    marginBottom: spacing.lg,
+    backgroundColor: colors.surfaceMuted
   },
   iconWrap: {
     width: 36,

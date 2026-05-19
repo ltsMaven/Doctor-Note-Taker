@@ -2,6 +2,7 @@ import { LucideIcon } from "lucide-react-native";
 import { ReactNode } from "react";
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   PressableProps,
   StyleProp,
@@ -25,6 +26,32 @@ type ActionButtonProps = PressableProps & {
 
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return <View style={[styles.card, shadow.card, style]}>{children}</View>;
+}
+
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  right,
+  style
+}: {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  right?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={[styles.pageHeader, shadow.soft, style]}>
+      <View style={styles.pageAccent} />
+      <View style={styles.pageText}>
+        {eyebrow ? <Text style={styles.pageEyebrow}>{eyebrow}</Text> : null}
+        <Text style={styles.pageTitle}>{title}</Text>
+        {description ? <Text style={styles.pageDescription}>{description}</Text> : null}
+      </View>
+      {right ? <View style={styles.pageRight}>{right}</View> : null}
+    </View>
+  );
 }
 
 export function ActionButton({
@@ -132,14 +159,14 @@ export function FieldLabel({ children, style }: { children: ReactNode; style?: S
 
 export const inputStyles = StyleSheet.create({
   input: {
-    minHeight: 44,
+    minHeight: 48,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     color: colors.ink,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
     fontSize: 16,
     lineHeight: 22
   },
@@ -154,11 +181,56 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: "#E7EDF5",
     padding: spacing.lg
   },
+  pageHeader: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: "#E7EDF5",
+    padding: spacing.xl,
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: spacing.lg,
+    overflow: "hidden"
+  },
+  pageAccent: {
+    width: 5,
+    alignSelf: "stretch",
+    borderRadius: radii.pill,
+    backgroundColor: colors.primary
+  },
+  pageText: {
+    flex: 1,
+    gap: spacing.xs,
+    minWidth: 220
+  },
+  pageRight: {
+    alignItems: "flex-start"
+  },
+  pageEyebrow: {
+    color: colors.accent,
+    fontWeight: "800",
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0
+  },
+  pageTitle: {
+    color: colors.ink,
+    fontSize: Platform.select({ web: 36, default: 32 }),
+    lineHeight: Platform.select({ web: 42, default: 38 }),
+    fontWeight: "900"
+  },
+  pageDescription: {
+    color: colors.muted,
+    fontSize: 16,
+    lineHeight: 24,
+    maxWidth: 760
+  },
   button: {
-    minHeight: 46,
+    minHeight: 48,
     borderRadius: radii.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
@@ -170,11 +242,11 @@ const styles = StyleSheet.create({
   },
   buttonPrimary: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary
+    borderColor: colors.primaryDark
   },
   buttonSecondary: {
-    backgroundColor: colors.primarySoft,
-    borderColor: "#B7E4E0"
+    backgroundColor: colors.surface,
+    borderColor: "#A9DAD6"
   },
   buttonDanger: {
     backgroundColor: colors.danger,
@@ -209,12 +281,12 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderWidth: 1
   },
   badgeInfo: {
     backgroundColor: colors.infoSoft,
-    borderColor: "#BFD7FF"
+    borderColor: "#BED4F7"
   },
   badgeSuccess: {
     backgroundColor: colors.successSoft,
@@ -229,7 +301,7 @@ const styles = StyleSheet.create({
     borderColor: "#FECACA"
   },
   badgeNeutral: {
-    backgroundColor: colors.neutralSoft,
+    backgroundColor: colors.surfaceMuted,
     borderColor: colors.line
   },
   badgeText: {
@@ -263,7 +335,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start"
   },
   eyebrow: {
-    color: colors.primaryDark,
+    color: colors.accent,
     fontWeight: "800",
     fontSize: 12,
     textTransform: "uppercase",
@@ -271,8 +343,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: colors.ink,
-    fontSize: 22,
-    lineHeight: 28,
+    fontSize: 21,
+    lineHeight: 27,
     fontWeight: "800"
   },
   description: {

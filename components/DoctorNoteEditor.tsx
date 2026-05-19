@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: spacing.lg,
     gap: spacing.md,
-    backgroundColor: "#FBFDFE"
+    backgroundColor: colors.surfaceMuted
   },
   inlineHeader: {
     flexDirection: "row",

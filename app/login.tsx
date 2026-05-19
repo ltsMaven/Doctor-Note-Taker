@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SafetyDisclaimer } from "@/components/WarningBox";
-import { ActionButton, Badge, Card, FieldLabel, inputStyles, SectionHeader } from "@/components/ui";
+import { ActionButton, Badge, Card, FieldLabel, inputStyles, PageHeader, SectionHeader } from "@/components/ui";
 import { colors, radii, spacing } from "@/constants/theme";
 import { useAuth } from "@/providers/AuthProvider";
 import { AppUser } from "@/types/auth";
@@ -47,15 +47,16 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logo}>
-            <Stethoscope size={28} color={colors.surface} />
-          </View>
-          <View style={styles.headerText}>
-            <Text style={styles.title}>Sign in</Text>
-            <Text style={styles.subtitle}>Choose a demo account. Changing user requires that account's PIN.</Text>
-          </View>
-        </View>
+        <PageHeader
+          eyebrow="Secure prototype"
+          title="Doctor Note Taker"
+          description="Choose a demo account to review clinical notes or view patient instructions."
+          right={
+            <View style={styles.logo}>
+              <Stethoscope size={28} color={colors.surface} />
+            </View>
+          }
+        />
 
         <SafetyDisclaimer />
 
@@ -139,33 +140,13 @@ const styles = StyleSheet.create({
     maxWidth: 980,
     alignSelf: "center"
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.lg
-  },
   logo: {
-    width: 58,
-    height: 58,
+    width: 56,
+    height: 56,
     borderRadius: radii.md,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center"
-  },
-  headerText: {
-    flex: 1,
-    gap: spacing.xs
-  },
-  title: {
-    color: colors.ink,
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900"
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 17,
-    lineHeight: 25
   },
   card: {
     gap: spacing.lg
@@ -182,11 +163,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
     flexWrap: "wrap",
-    backgroundColor: colors.surface
+    backgroundColor: colors.surfaceMuted
   },
   userCardSelected: {
     borderColor: colors.primary,
-    backgroundColor: colors.primarySoft
+    backgroundColor: "#F2FBFA"
   },
   userIcon: {
     width: 42,

@@ -9,7 +9,7 @@ import { RecordButton } from "@/components/RecordButton";
 import { RecordingStatus } from "@/components/RecordingStatus";
 import { SessionBar } from "@/components/SessionBar";
 import { TranscriptPreview } from "@/components/TranscriptPreview";
-import { ActionButton, Badge, Card, SectionHeader } from "@/components/ui";
+import { ActionButton, Badge, Card, PageHeader, SectionHeader } from "@/components/ui";
 import { SafetyDisclaimer, WarningBox } from "@/components/WarningBox";
 import { colors, spacing } from "@/constants/theme";
 import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
@@ -126,15 +126,17 @@ function DoctorContent() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>Doctor dashboard</Text>
-            <Text style={styles.subtitle}>
-              Record the consultation explanation, review the AI draft, edit the notes, then approve before sending.
-            </Text>
-          </View>
-          <Badge label={sent ? "Sent to patient" : "Draft only"} tone={sent ? "success" : "neutral"} />
-        </View>
+        <PageHeader
+          eyebrow="Doctor workspace"
+          title="Review before sharing"
+          description="Record the consultation, refine the AI draft, and approve a clear set of patient instructions."
+          right={
+            <View style={styles.headerMeta}>
+              <Badge label={sent ? "Sent to patient" : "Draft only"} tone={sent ? "success" : "neutral"} />
+              <Text style={styles.recipient}>Recipient: {targetPatientName}</Text>
+            </View>
+          }
+        />
 
         <SafetyDisclaimer />
         <SessionBar />
@@ -144,7 +146,7 @@ function DoctorContent() {
             <SectionHeader
               eyebrow="Recording"
               title="Consultation audio"
-              description="Audio is captured by Browser MediaRecorder, posted to /api/transcribe, then converted into structured JSON by /api/generate-summary."
+              description="Capture the doctor explanation and convert it into a structured draft."
             />
             <RecordingStatus status={recorder.status} mode={recorder.mode} errorMessage={recorder.errorMessage} />
             <RecordButton
@@ -169,7 +171,7 @@ function DoctorContent() {
             <SectionHeader
               eyebrow="Approval"
               title="Doctor gate"
-              description={`The patient route only reads summaries saved after this review step. Current recipient: ${targetPatientName}.`}
+              description="Patients only see notes after this review step is complete."
             />
             <View style={styles.approvalRow}>
               <View style={styles.approvalIcon}>
@@ -225,25 +227,15 @@ const styles = StyleSheet.create({
     maxWidth: 1180,
     alignSelf: "center"
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: spacing.lg,
-    flexWrap: "wrap"
+  headerMeta: {
+    gap: spacing.sm,
+    alignItems: "flex-start"
   },
-  title: {
-    color: colors.ink,
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900"
-  },
-  subtitle: {
+  recipient: {
     color: colors.muted,
-    fontSize: 16,
-    lineHeight: 24,
-    maxWidth: 780,
-    marginTop: spacing.xs
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "700"
   },
   grid: {
     gap: spacing.lg

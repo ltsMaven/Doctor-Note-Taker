@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-n
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, spacing } from "@/constants/theme";
 import { SessionBar } from "@/components/SessionBar";
-import { ActionButton, Card, SectionHeader } from "@/components/ui";
+import { ActionButton, Card, PageHeader, SectionHeader } from "@/components/ui";
 import { SafetyDisclaimer } from "@/components/WarningBox";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -19,17 +19,16 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logo}>
-            <Stethoscope size={28} color={colors.surface} />
-          </View>
-          <View style={styles.headerText}>
-            <Text style={styles.title}>Doctor Note Taker</Text>
-            <Text style={styles.subtitle}>
-              Record a consultation explanation, turn it into reviewed patient instructions, and create medication reminders.
-            </Text>
-          </View>
-        </View>
+        <PageHeader
+          eyebrow="Clinical note companion"
+          title="Doctor Note Taker"
+          description="Record consultations, review patient instructions, and manage medication reminders from one clean workspace."
+          right={
+            <View style={styles.logo}>
+              <Stethoscope size={28} color={colors.surface} />
+            </View>
+          }
+        />
 
         <SafetyDisclaimer />
         {user ? <SessionBar /> : null}
@@ -100,33 +99,13 @@ const styles = StyleSheet.create({
     maxWidth: 1120,
     alignSelf: "center"
   },
-  header: {
-    flexDirection: "row",
-    gap: spacing.lg,
-    alignItems: "center"
-  },
   logo: {
-    width: 58,
-    height: 58,
+    width: 56,
+    height: 56,
     borderRadius: 8,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center"
-  },
-  headerText: {
-    flex: 1,
-    gap: spacing.xs
-  },
-  title: {
-    color: colors.ink,
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900"
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 17,
-    lineHeight: 25
   },
   grid: {
     gap: spacing.lg

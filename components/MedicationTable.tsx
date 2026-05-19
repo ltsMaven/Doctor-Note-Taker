@@ -75,13 +75,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: radii.md,
-    overflow: "hidden"
+    overflow: "hidden",
+    backgroundColor: colors.surface
   },
   row: {
     flexDirection: "row"
   },
   headerRow: {
-    backgroundColor: colors.neutralSoft
+    backgroundColor: colors.surfaceMuted
   },
   headerCell: {
     color: colors.ink,
@@ -94,7 +95,8 @@ const styles = StyleSheet.create({
   },
   dataBlock: {
     borderTopWidth: 1,
-    borderTopColor: colors.line
+    borderTopColor: colors.line,
+    backgroundColor: colors.surface
   },
   cell: {
     color: colors.ink,

@@ -69,7 +69,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     borderWidth: 1,
     padding: spacing.lg,
-    gap: spacing.md
+    gap: spacing.md,
+    backgroundColor: colors.surface
   },
   warning: {
     backgroundColor: colors.warningSoft,
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm
   },
   item: {
-    color: colors.ink,
+    color: colors.muted,
     fontSize: 15,
     lineHeight: 22
   }

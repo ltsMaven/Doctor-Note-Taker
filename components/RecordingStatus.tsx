@@ -37,7 +37,9 @@ export function RecordingStatus({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.surfaceSoft,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: radii.md,
     padding: spacing.lg,
     gap: spacing.md

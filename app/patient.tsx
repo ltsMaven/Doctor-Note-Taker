@@ -9,7 +9,7 @@ import { MedicationTable } from "@/components/MedicationTable";
 import { PatientInstructionChecklist } from "@/components/PatientInstructionChecklist";
 import { ReminderList } from "@/components/ReminderList";
 import { SessionBar } from "@/components/SessionBar";
-import { ActionButton, Badge, Card, SectionHeader } from "@/components/ui";
+import { ActionButton, Badge, Card, PageHeader, SectionHeader } from "@/components/ui";
 import { WarningBox } from "@/components/WarningBox";
 import { colors, radii, spacing } from "@/constants/theme";
 import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
@@ -131,15 +131,12 @@ function PatientContent() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>Your care instructions</Text>
-            <Text style={styles.subtitle}>
-              Plain-language instructions reviewed by your doctor{summary.patientName ? ` for ${summary.patientName}` : ""}.
-            </Text>
-          </View>
-          <Badge label="Doctor approved" tone="success" />
-        </View>
+        <PageHeader
+          eyebrow="Patient instructions"
+          title="Your care plan"
+          description={`Plain-language instructions reviewed by your doctor${summary.patientName ? ` for ${summary.patientName}` : ""}.`}
+          right={<Badge label="Doctor approved" tone="success" />}
+        />
 
         <SessionBar />
 
@@ -208,25 +205,6 @@ const styles = StyleSheet.create({
   loadingText: {
     color: colors.muted,
     fontSize: 16
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: spacing.lg,
-    flexWrap: "wrap"
-  },
-  title: {
-    color: colors.ink,
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900"
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 17,
-    lineHeight: 24,
-    marginTop: spacing.xs
   },
   summaryText: {
     color: colors.ink,

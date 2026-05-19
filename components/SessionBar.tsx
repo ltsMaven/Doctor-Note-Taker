@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: radii.pill,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceSoft,
     alignItems: "center",
     justifyContent: "center"
   },
@@ -182,11 +182,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     minHeight: 50,
-    backgroundColor: colors.surface
+    backgroundColor: colors.surfaceMuted
   },
   userOptionSelected: {
     borderColor: colors.primary,
-    backgroundColor: colors.primarySoft
+    backgroundColor: "#F2FBFA"
   },
   optionText: {
     gap: 1
