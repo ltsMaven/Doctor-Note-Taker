@@ -62,3 +62,14 @@ export type PatientDirectoryEntry = {
   displayName: string;
   addedAt: string;
 };
+
+export type PatientIntakeProfile = {
+  patientId: string;
+  name: string;
+  age: string;
+  sex: string;
+  dateOfBirth: string;
+  symptoms: string;
+  doctorNotes: string;
+  createdAt: string;
+};

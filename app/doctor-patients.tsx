@@ -10,12 +10,13 @@ import { ActionButton, Badge, Card, FieldLabel, inputStyles, PageHeader, Section
 import { colors, radii, spacing } from "@/constants/theme";
 import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
-import { MedicalSummary, MedicationReminder, PatientDirectoryEntry } from "@/types/medical";
-import { loadApprovedSummary, loadPatientDirectory, loadReminders, upsertPatientDirectoryEntry } from "@/utils/storage";
+import { MedicalSummary, MedicationReminder, PatientDirectoryEntry, PatientIntakeProfile } from "@/types/medical";
+import { loadApprovedSummary, loadPatientDirectory, loadPatientIntake, loadReminders, upsertPatientDirectoryEntry } from "@/utils/storage";
 
 type PatientRow = PatientDirectoryEntry & {
   summary: MedicalSummary | null;
   reminders: MedicationReminder[];
+  intake: PatientIntakeProfile | null;
 };
 
 export default function DoctorPatientsScreen() {
@@ -46,7 +47,8 @@ function DoctorPatientsContent() {
       entries.map(async (entry) => ({
         ...entry,
         summary: await loadApprovedSummary(entry.patientId),
-        reminders: await loadReminders(entry.patientId)
+        reminders: await loadReminders(entry.patientId),
+        intake: await loadPatientIntake(entry.patientId)
       }))
     );
     setPatients(rows);
@@ -119,7 +121,7 @@ function DoctorPatientsContent() {
           <View style={styles.patientList}>
             {patients.map((patient) => {
               const pendingReminders = patient.reminders.filter((reminder) => reminder.status === "Pending").length;
-              const displayName = patient.summary?.patientName ?? patient.displayName;
+              const displayName = patient.summary?.patientName ?? patient.intake?.name ?? patient.displayName;
 
               return (
                 <Card key={patient.patientId} style={styles.patientCard}>
@@ -129,6 +131,11 @@ function DoctorPatientsContent() {
                   <View style={styles.patientText}>
                     <Text style={styles.patientName}>{displayName}</Text>
                     <Text style={styles.patientMeta}>Unique ID: {patient.patientId}</Text>
+                    {patient.intake ? (
+                      <Text style={styles.patientMeta}>
+                        {patient.intake.age} years - {patient.intake.sex}
+                      </Text>
+                    ) : null}
                     <View style={styles.statRow}>
                       <View style={styles.stat}>
                         <ClipboardCheck size={16} color={colors.primaryDark} />

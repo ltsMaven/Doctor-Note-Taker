@@ -13,8 +13,8 @@ import { WarningBox } from "@/components/WarningBox";
 import { colors, spacing } from "@/constants/theme";
 import { DEFAULT_PATIENT_ID } from "@/data/mockUsers";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
-import { MedicalSummary, MedicationReminder } from "@/types/medical";
-import { loadApprovedSummary, loadReminders } from "@/utils/storage";
+import { MedicalSummary, MedicationReminder, PatientIntakeProfile } from "@/types/medical";
+import { loadApprovedSummary, loadPatientIntake, loadReminders } from "@/utils/storage";
 
 export default function DoctorPatientDetailScreen() {
   const gate = useProtectedRoute(["doctor"]);
@@ -37,6 +37,7 @@ function DoctorPatientDetailContent() {
   const resolvedPatientId = Array.isArray(patientId) ? patientId[0] : patientId ?? DEFAULT_PATIENT_ID;
   const [summary, setSummary] = useState<MedicalSummary | null>(null);
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
+  const [intake, setIntake] = useState<PatientIntakeProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -44,11 +45,12 @@ function DoctorPatientDetailContent() {
       let isMounted = true;
       setLoading(true);
 
-      Promise.all([loadApprovedSummary(resolvedPatientId), loadReminders(resolvedPatientId)]).then(
-        ([storedSummary, storedReminders]) => {
+      Promise.all([loadApprovedSummary(resolvedPatientId), loadReminders(resolvedPatientId), loadPatientIntake(resolvedPatientId)]).then(
+        ([storedSummary, storedReminders, storedIntake]) => {
           if (isMounted) {
             setSummary(storedSummary);
             setReminders(storedReminders);
+            setIntake(storedIntake);
             setLoading(false);
           }
         }
@@ -69,7 +71,7 @@ function DoctorPatientDetailContent() {
           <DoctorTopBar title="Patient details" />
 
           <PageHeader
-            title={summary?.patientName ?? "Patient details"}
+            title={summary?.patientName ?? intake?.name ?? "Patient details"}
             description={summary?.doctorApproved ? "Doctor-approved medical information for this patient." : "No approved medical summary is available yet."}
             right={<Badge label={summary?.doctorApproved ? "Approved" : "Draft only"} tone={summary?.doctorApproved ? "success" : "neutral"} />}
           />
@@ -79,8 +81,43 @@ function DoctorPatientDetailContent() {
             <Card>
               <Text style={styles.emptyText}>Loading patient details...</Text>
             </Card>
-          ) : summary ? (
+          ) : (
             <>
+              {intake ? (
+                <Card>
+                  <SectionHeader eyebrow="Patient intake" title="What the doctor should know" />
+                  <View style={styles.intakeGrid}>
+                    <View style={styles.intakeStat}>
+                      <Text style={styles.intakeValue}>{intake.age}</Text>
+                      <Text style={styles.intakeLabel}>Age</Text>
+                    </View>
+                    <View style={styles.intakeStat}>
+                      <Text style={styles.intakeValue}>{intake.sex}</Text>
+                      <Text style={styles.intakeLabel}>Sex</Text>
+                    </View>
+                    <View style={styles.intakeStat}>
+                      <Text style={styles.intakeValue}>{intake.dateOfBirth}</Text>
+                      <Text style={styles.intakeLabel}>DOB</Text>
+                    </View>
+                  </View>
+                  {intake.symptoms ? (
+                    <View style={styles.noteBlock}>
+                      <Text style={styles.noteTitle}>Symptoms</Text>
+                      <Text style={styles.summaryText}>{intake.symptoms}</Text>
+                    </View>
+                  ) : null}
+                  {intake.doctorNotes ? (
+                    <View style={styles.noteBlock}>
+                      <Text style={styles.noteTitle}>Extra notes</Text>
+                      <Text style={styles.summaryText}>{intake.doctorNotes}</Text>
+                    </View>
+                  ) : null}
+                  <Text style={styles.metaText}>Unique ID: {intake.patientId}</Text>
+                </Card>
+              ) : null}
+
+              {summary ? (
+                <>
               <Card>
                 <SectionHeader eyebrow="Summary" title="Medical summary" />
                 <Text style={styles.summaryText}>{summary.patientSummary}</Text>
@@ -125,11 +162,13 @@ function DoctorPatientDetailContent() {
                   )}
                 </View>
               </Card>
+                </>
+              ) : (
+                <Card>
+                  <SectionHeader title="No approved summary" description="Record and send a reviewed plan before medical details appear here." />
+                </Card>
+              )}
             </>
-          ) : (
-            <Card>
-              <SectionHeader title="No approved summary" description="Record and send a reviewed plan before medical details appear here." />
-            </Card>
           )}
         </ScrollView>
 
@@ -170,6 +209,44 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 17,
     lineHeight: 26
+  },
+  intakeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.md,
+    marginBottom: spacing.md
+  },
+  intakeStat: {
+    flex: 1,
+    minWidth: 140,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 8,
+    backgroundColor: colors.surfaceMuted,
+    padding: spacing.md,
+    gap: spacing.xs
+  },
+  intakeValue: {
+    color: colors.ink,
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: "900"
+  },
+  intakeLabel: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "800"
+  },
+  noteBlock: {
+    gap: spacing.xs,
+    marginBottom: spacing.md
+  },
+  noteTitle: {
+    color: colors.primaryDark,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "900"
   },
   metaText: {
     color: colors.muted,

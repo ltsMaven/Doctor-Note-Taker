@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Bell, CalendarCheck, LogIn, Pill, UserRound } from "lucide-react-native";
+import { Bell, CalendarCheck, LogIn, Pill, UserPlus, UserRound } from "lucide-react-native";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ActionButton, Card, PageHeader, SectionHeader } from "@/components/ui";
@@ -52,6 +52,11 @@ export default function PatientLandingScreen() {
             icon={LogIn}
             tone="secondary"
             onPress={() => router.push("/login?userId=patient-ava")}
+          />
+          <ActionButton
+            label="Sign up"
+            icon={UserPlus}
+            onPress={() => router.push("/patient-signup" as never)}
           />
         </Card>
       </ScrollView>

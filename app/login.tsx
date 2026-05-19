@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { LogIn, ShieldCheck } from "lucide-react-native";
+import { LogIn, ShieldCheck, UserPlus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -143,6 +143,14 @@ export default function LoginScreen() {
             disabled={email.trim().length === 0 || pin.trim().length === 0 || (isDoctor && certificateCode.trim().length === 0)}
             onPress={handleLogin}
           />
+          {!isDoctor ? (
+            <ActionButton
+              label="Sign up as Patient"
+              icon={UserPlus}
+              tone="secondary"
+              onPress={() => router.push("/patient-signup" as never)}
+            />
+          ) : null}
         </Card>
       </ScrollView>
     </SafeAreaView>
